@@ -11,24 +11,25 @@ if(isset($_POST['save_trip']))
     $cargo_weight = $_POST['cargo_weight'];
     $planned_distance = $_POST['planned_distance'];
     $status = $_POST['status'];
-
-    $sql = "INSERT INTO trips
-    (source,destination,vehicle_id,driver_id,cargo_weight,planned_distance,status)
-    VALUES (?,?,?,?,?,?,?)";
+    $trip_date = date("Y-m-d");
+   $sql = "INSERT INTO trips
+   (source,destination,vehicle_id,driver_id,cargo_weight,planned_distance,status,trip_date)
+VALUES (?,?,?,?,?,?,?,?)";
 
     $stmt = mysqli_prepare($conn,$sql);
 
-    mysqli_stmt_bind_param(
-        $stmt,
-        "ssiiiis",
-        $source,
-        $destination,
-        $vehicle_id,
-        $driver_id,
-        $cargo_weight,
-        $planned_distance,
-        $status
-    );
+  mysqli_stmt_bind_param(
+    $stmt,
+    "ssiiddss",
+    $source,
+    $destination,
+    $vehicle_id,
+    $driver_id,
+    $cargo_weight,
+    $planned_distance,
+    $status,
+    $trip_date
+);
 
     if(mysqli_stmt_execute($stmt))
     {
@@ -48,17 +49,9 @@ if(isset($_POST['save_trip']))
         exit;
     }
 }
-
-
-/* ===========================================
-   DELETE TRIP
-=========================================== */
-
 if(isset($_GET['delete']))
 {
     $trip_id = $_GET['delete'];
-
-    // Get Driver & Vehicle before deleting
     $trip = mysqli_query($conn,
     "SELECT vehicle_id,driver_id
     FROM trips
@@ -90,12 +83,6 @@ if(isset($_GET['delete']))
     header("Location: ../pages/trips.php?deleted=1");
     exit;
 }
-
-
-/* ===========================================
-   UPDATE TRIP
-=========================================== */
-
 if(isset($_POST['update_trip']))
 {
 
@@ -129,7 +116,7 @@ if(isset($_POST['update_trip']))
 
         $stmt,
 
-        "ssiiiisi",
+        "ssiiddss",
 
         $source,
         $destination,

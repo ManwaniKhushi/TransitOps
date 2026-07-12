@@ -179,15 +179,10 @@ required>
 <select
 name="status"
 class="form-select">
-
-<option value="Scheduled">Scheduled</option>
-
-<option value="On Trip">On Trip</option>
-
+<option value="Draft">Draft</option>
+<option value="Dispatched">Dispatched</option>
 <option value="Completed">Completed</option>
-
 <option value="Cancelled">Cancelled</option>
-
 </select>
 
 </div>
@@ -250,15 +245,10 @@ placeholder="Search Trip...">
 <?php
 
 $statusColors = [
-
-"Scheduled"=>"secondary",
-
-"On Trip"=>"primary",
-
-"Completed"=>"success",
-
-"Cancelled"=>"danger"
-
+    "Draft" => "secondary",
+    "Dispatched" => "primary",
+    "Completed" => "success",
+    "Cancelled" => "danger"
 ];
 
 $badge = $statusColors[$trip['status']] ?? "dark";

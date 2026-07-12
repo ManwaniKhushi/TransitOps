@@ -1,10 +1,5 @@
 <?php
 include("../config/db.php");
-
-/* ===========================
-   ADD DRIVER
-=========================== */
-
 if(isset($_POST['save_driver']))
 {
     $name = trim($_POST['name']);
@@ -98,12 +93,6 @@ if(isset($_POST['update_driver']))
         echo "Error: " . mysqli_error($conn);
     }
 }
-
-
-/* ===========================
-   DELETE DRIVER
-=========================== */
-
 if(isset($_GET['delete']))
 {
     $driver_id = $_GET['delete'];

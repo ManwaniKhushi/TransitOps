@@ -80,6 +80,29 @@ $row = mysqli_fetch_assoc($result);
 $totalFuelConsumed = $row['totalLitres'] ?? 0;
 include("../includes/header.php");
 include("../includes/navbar.php");
+$recentTripsQuery = "SELECT
+t.trip_id,
+t.source,
+t.destination,
+t.status,
+t.trip_date,
+v.registration_number,
+v.vehicle_name,
+d.name
+
+FROM trips t
+
+JOIN vehicles v
+ON t.vehicle_id = v.vehicle_id
+
+JOIN drivers d
+ON t.driver_id = d.driver_id
+
+ORDER BY t.trip_date DESC, t.trip_id DESC
+
+LIMIT 5";
+
+$recentTripsResult = mysqli_query($conn, $recentTripsQuery);
 ?>
 
 <div class="container mt-4">
@@ -222,21 +245,117 @@ include("../includes/navbar.php");
  <br><hr><br>
 <div class="card shadow">
 
-<div class="card-header">
+<div class="card-header bg-dark text-white d-flex justify-content-between">
 
-<h4>Recent Activity</h4>
+    <h4>🛣 Recent Trips</h4>
 
-</div>
-
-<div class="card-body">
-
-<p class="text-muted">
-
-No recent activity yet.
-
-</p>
+    <a href="trips.php" class="btn btn-light btn-sm">
+        View All
+    </a>
 
 </div>
+
+   <div class="card-body">
+
+        <table class="table table-bordered table-hover">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>Vehicle</th>
+                    <th>Driver</th>
+                    <th>Route</th>
+                    <th>Date</th>
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <?php
+                if(mysqli_num_rows($recentTripsResult) > 0)
+                {
+                    while($trip = mysqli_fetch_assoc($recentTripsResult))
+                    {
+
+                        $statusColors = [
+
+                            "Draft" => "secondary",
+                            "Dispatched" => "primary",
+                            "Completed" => "success",
+                            "Cancelled" => "danger"
+
+                        ];
+
+                        $badge = $statusColors[$trip['status']] ?? "dark";
+                ?>
+
+                <tr>
+
+                    <td>
+
+                        <?= $trip['registration_number']; ?>
+
+                        <br>
+
+                        <small><?= $trip['vehicle_name']; ?></small>
+
+                    </td>
+
+                    <td><?= $trip['name']; ?></td>
+
+                    <td>
+
+                        <?= $trip['source']; ?>
+
+                        →
+
+                        <?= $trip['destination']; ?>
+
+                    </td>
+
+                    <td><?= $trip['trip_date']; ?></td>
+
+                    <td>
+
+                        <span class="badge bg-<?= $badge; ?>">
+
+                            <?= $trip['status']; ?>
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                <?php
+                    }
+                }
+                else
+                {
+                ?>
+
+                <tr>
+
+                    <td colspan="5" class="text-center">
+
+                        No trips found.
+
+                    </td>
+
+                </tr>
+
+                <?php } ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
 
 </div>
 <br><br>
