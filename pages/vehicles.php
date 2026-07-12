@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+if($_SESSION['role']!="Fleet Manager")
+{
+die("Access Denied");
+}
 if(!isset($_SESSION['user_id']))
 {
     header("Location: login.php");

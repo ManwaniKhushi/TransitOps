@@ -6,6 +6,13 @@ if(!isset($_SESSION['user_id']))
     header("Location: login.php");
     exit;
 }
+if(
+$_SESSION['role']!="Fleet Manager" &&
+$_SESSION['role']!="Safety Officer"
+)
+{
+die("Access Denied");
+}
 include("../config/db.php");
 include("../includes/header.php");
 include("../includes/navbar.php");
