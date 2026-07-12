@@ -1,51 +1,11 @@
-<?php  
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+<?php
 include("../config/db.php");
-if(isset($_POST['save_vehicle']))
-{
-    $registration_number = trim($_POST['registration_number']);
-    $vehicle_name = trim($_POST['vehicle_name']);
-    $vehicle_type = trim($_POST['vehicle_type']);
-    $max_capacity = $_POST['max_capacity'];
-    $odometer = $_POST['odometer'];
-    $acquisition_cost = $_POST['acquisition_cost'];
-
-    // New vehicles are always available
-    $status = "Available";
-
-    $sql = "INSERT INTO vehicles
-    (registration_number, vehicle_name, vehicle_type, max_capacity, odometer, acquisition_cost, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-    $stmt = mysqli_prepare($conn, $sql);
-
-    mysqli_stmt_bind_param(
-        $stmt,
-        "sssddds",
-        $registration_number,
-        $vehicle_name,
-        $vehicle_type,
-        $max_capacity,
-        $odometer,
-        $acquisition_cost,
-        $status
-    );
-
-    if(mysqli_stmt_execute($stmt))
-    {
-      header("Location: vehicles.php?success=1");
-exit;
-    }
-    else
-    {
-        echo "<div class='alert alert-danger'>Error Adding Vehicle.</div>";
-    }
-
-    mysqli_stmt_close($stmt);
-}
 include("../includes/header.php");
 include("../includes/navbar.php");
+
+// Fetch all vehicles
+$query = "SELECT * FROM vehicles ORDER BY vehicle_id DESC";
+$result = mysqli_query($conn, $query);
 ?>
 
 <div class="container mt-4">
@@ -58,7 +18,25 @@ include("../includes/navbar.php");
 
         <div class="card-body">
 
-            <form action="" method="POST">
+            <?php if(isset($_GET['success'])) { ?>
+                <div class="alert alert-success">
+                    Vehicle Added Successfully!
+                </div>
+            <?php } ?>
+
+            <?php if(isset($_GET['updated'])) { ?>
+                <div class="alert alert-success">
+                    Vehicle Updated Successfully!
+                </div>
+            <?php } ?>
+
+            <?php if(isset($_GET['deleted'])) { ?>
+                <div class="alert alert-danger">
+                    Vehicle Deleted Successfully!
+                </div>
+            <?php } ?>
+
+            <form action="../actions/vehicle_action.php" method="POST">
 
                 <div class="mb-3">
                     <label class="form-label">Registration Number</label>
@@ -72,7 +50,7 @@ include("../includes/navbar.php");
 
                 <div class="mb-3">
                     <label class="form-label">Vehicle Type</label>
-                    <input type="text" name="vehicle_type" class="form-control">
+                    <input type="text" name="vehicle_type" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
@@ -82,38 +60,154 @@ include("../includes/navbar.php");
 
                 <div class="mb-3">
                     <label class="form-label">Odometer (km)</label>
-                    <input type="number" name="odometer" class="form-control">
+                    <input type="number" name="odometer" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Acquisition Cost</label>
-                    <input type="number" name="acquisition_cost" class="form-control">
+                    <input type="number" name="acquisition_cost" class="form-control" required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
+                <button type="submit" name="save_vehicle" class="btn btn-success">
+                    Save Vehicle
+                </button>
 
-                    <select name="status" class="form-select">
-
-                        <option value="Available">Available</option>
-                        <option value="On Trip">On Trip</option>
-                        <option value="In Shop">In Shop</option>
-                        <option value="Retired">Retired</option>
-
-                    </select>
-
-                </div>
-
-               <button type="submit" name="save_vehicle" class="btn btn-success">
-    Save Vehicle
-</button>
             </form>
 
         </div>
 
     </div>
 
+    <hr>
+
+    <!-- Search -->
+
+    <div class="card shadow mt-4">
+
+        <div class="card-header bg-secondary text-white">
+            <h4>Vehicle List</h4>
+        </div>
+
+        <div class="card-body">
+
+            <input
+                type="text"
+                id="searchVehicle"
+                class="form-control mb-3"
+                placeholder="Search Vehicle..."
+            >
+
+            <table class="table table-bordered table-hover" id="vehicleTable">
+
+                <thead class="table-dark">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Registration</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Capacity</th>
+                    <th>Odometer</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th width="170">Actions</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php while($row = mysqli_fetch_assoc($result)) { ?>
+
+                    <?php
+
+                    $statusColors = [
+                        "Available"=>"success",
+                        "On Trip"=>"primary",
+                        "In Shop"=>"warning",
+                        "Retired"=>"danger"
+                    ];
+
+                    $badge = $statusColors[$row['status']] ?? "secondary";
+
+                    ?>
+
+                    <tr>
+
+                        <td><?= $row['vehicle_id']; ?></td>
+
+                        <td><?= $row['registration_number']; ?></td>
+
+                        <td><?= $row['vehicle_name']; ?></td>
+
+                        <td><?= $row['vehicle_type']; ?></td>
+
+                        <td><?= $row['max_capacity']; ?> kg</td>
+
+                        <td><?= number_format($row['odometer']); ?> km</td>
+
+                        <td>₹<?= number_format($row['acquisition_cost']); ?></td>
+
+                        <td>
+
+                            <span class="badge bg-<?= $badge ?>">
+                                <?= $row['status']; ?>
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <a href="edit_vehicle.php?id=<?= $row['vehicle_id']; ?>"
+                               class="btn btn-warning btn-sm">
+
+                                Edit
+
+                            </a>
+
+                            <a href="../actions/vehicle_action.php?delete=<?= $row['vehicle_id']; ?>"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this vehicle?')">
+
+                                Delete
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                <?php } ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
+
+<script>
+document.getElementById("searchVehicle").addEventListener("keyup", function () {
+
+    let filter = this.value.toLowerCase();
+
+    let rows = document.querySelectorAll("#vehicleTable tbody tr");
+
+    rows.forEach(function(row){
+
+        let text = row.innerText.toLowerCase();
+
+        row.style.display = text.includes(filter) ? "" : "none";
+
+    });
+
+});
+</script>
 
 <?php
 include("../includes/footer.php");
