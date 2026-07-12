@@ -117,9 +117,7 @@ $result = mysqli_query($conn, $query);
 
                 </thead>
 
-                <tbody>
-
-                <?php while($row = mysqli_fetch_assoc($result)) { ?>
+                <tbody>   <?php while($row = mysqli_fetch_assoc($result)) { ?>
 
                     <?php
 
@@ -160,7 +158,7 @@ $result = mysqli_query($conn, $query);
 
                         <td>
 
-                            <a href="edit_vehicle.php?id=<?= $row['vehicle_id']; ?>"
+                            <a href="../actions/edit_vehicle.php?id=<?= $row['vehicle_id']; ?>"
                                class="btn btn-warning btn-sm">
 
                                 Edit
