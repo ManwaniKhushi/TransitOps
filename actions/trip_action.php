@@ -2,10 +2,6 @@
 
 include("../config/db.php");
 
-/* ===========================================
-   ADD TRIP
-=========================================== */
-
 if(isset($_POST['save_trip']))
 {
     $vehicle_id = $_POST['vehicle_id'];

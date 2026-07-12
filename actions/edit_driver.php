@@ -1,230 +1,168 @@
 <?php
+session_start();
 
-include("../config/db.php");
-include("../includes/header.php");
-include("../includes/navbar.php");
-
-if(!isset($_GET['id']))
+if(!isset($_SESSION['user_id']))
 {
-    header("Location: trips.php");
+    header("Location: login.php");
     exit;
 }
 
-$trip_id = $_GET['id'];
+include("../config/db.php");
 
-/* Fetch Trip */
+if(!isset($_GET['id']))
+{
+    header("Location: drivers.php");
+    exit;
+}
 
-$stmt = mysqli_prepare($conn,"SELECT * FROM trips WHERE trip_id=?");
-mysqli_stmt_bind_param($stmt,"i",$trip_id);
+$driver_id = $_GET['id'];
+
+$stmt = mysqli_prepare($conn, "SELECT * FROM drivers WHERE driver_id=?");
+mysqli_stmt_bind_param($stmt, "i", $driver_id);
 mysqli_stmt_execute($stmt);
 
 $result = mysqli_stmt_get_result($stmt);
-$trip = mysqli_fetch_assoc($result);
+$driver = mysqli_fetch_assoc($result);
 
-if(!$trip)
+if(!$driver)
 {
-    die("Trip Not Found");
+    die("Driver not found.");
 }
 
-/* Fetch Vehicles */
-
-$vehicleQuery = "SELECT vehicle_id,registration_number,vehicle_name FROM vehicles";
-$vehicleResult = mysqli_query($conn,$vehicleQuery);
-
-/* Fetch Drivers */
-
-$driverQuery = "SELECT driver_id,name FROM drivers";
-$driverResult = mysqli_query($conn,$driverQuery);
-
+include("../includes/header.php");
+include("../includes/navbar.php");
 ?>
 
 <div class="container mt-4">
 
-<div class="card shadow">
+    <div class="card shadow">
+
+        <div class="card-header bg-warning text-dark">
+            <h3>Edit Driver</h3>
+        </div>
+
+        <div class="card-body">
+
+            <form action="../actions/driver_action.php" method="POST">
+
+                <input type="hidden"
+                       name="driver_id"
+                       value="<?= $driver['driver_id']; ?>">
+
+                <div class="mb-3">
+                    <label class="form-label">Driver Name</label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        value="<?= htmlspecialchars($driver['name']); ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">License Number</label>
+
+                    <input
+                        type="text"
+                        name="license_number"
+                        class="form-control"
+                        value="<?= htmlspecialchars($driver['license_number']); ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">License Category</label>
+
+                    <input
+                        type="text"
+                        name="license_category"
+                        class="form-control"
+                        value="<?= htmlspecialchars($driver['license_category']); ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">License Expiry</label>
+
+                    <input
+                        type="date"
+                        name="license_expiry"
+                        class="form-control"
+                        value="<?= $driver['license_expiry']; ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contact Number</label>
+
+                    <input
+                        type="text"
+                        name="contact_number"
+                        class="form-control"
+                        value="<?= htmlspecialchars($driver['contact_number']); ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Safety Score</label>
+
+                    <input
+                        type="number"
+                        name="safety_score"
+                        class="form-control"
+                        min="0"
+                        max="100"
+                        value="<?= $driver['safety_score']; ?>"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+
+                    <select
+                        name="status"
+                        class="form-select">
+
+                        <option value="Available"
+                            <?= ($driver['status']=="Available") ? "selected" : ""; ?>>
+                            Available
+                        </option>
+
+                        <option value="On Trip"
+                            <?= ($driver['status']=="On Trip") ? "selected" : ""; ?>>
+                            On Trip
+                        </option>
+
+                        <option value="Inactive"
+                            <?= ($driver['status']=="Inactive") ? "selected" : ""; ?>>
+                            Inactive
+                        </option>
 
-<div class="card-header bg-warning">
-<h3>Edit Trip</h3>
-</div>
+                    </select>
+                </div>
 
-<div class="card-body">
+                <button
+                    type="submit"
+                    name="update_driver"
+                    class="btn btn-primary">
 
-<form action="../actions/trip_action.php" method="POST">
+                    Update Driver
 
-<input
-type="hidden"
-name="trip_id"
-value="<?= $trip['trip_id']; ?>">
+                </button>
 
-<div class="mb-3">
+                <a href="drivers.php"
+                   class="btn btn-secondary">
 
-<label class="form-label">Vehicle</label>
+                    Cancel
 
-<select
-name="vehicle_id"
-class="form-select"
-required>
+                </a>
 
-<?php while($vehicle=mysqli_fetch_assoc($vehicleResult)){ ?>
+            </form>
 
-<option
-value="<?= $vehicle['vehicle_id']; ?>"
+        </div>
 
-<?= ($trip['vehicle_id']==$vehicle['vehicle_id']) ? "selected" : ""; ?>
-
->
-
-<?= $vehicle['registration_number']; ?>
-
--
-
-<?= $vehicle['vehicle_name']; ?>
-
-</option>
-
-<?php } ?>
-
-</select>
-
-</div>
-
-<div class="mb-3">
-
-<label class="form-label">Driver</label>
-
-<select
-name="driver_id"
-class="form-select"
-required>
-
-<?php while($driver=mysqli_fetch_assoc($driverResult)){ ?>
-
-<option
-value="<?= $driver['driver_id']; ?>"
-
-<?= ($trip['driver_id']==$driver['driver_id']) ? "selected" : ""; ?>
-
->
-
-<?= $driver['name']; ?>
-
-</option>
-
-<?php } ?>
-
-</select>
-
-</div>
-
-<div class="mb-3">
-
-<label>Source</label>
-
-<input
-type="text"
-name="source"
-class="form-control"
-value="<?= htmlspecialchars($trip['source']); ?>"
-required>
-
-</div>
-
-<div class="mb-3">
-
-<label>Destination</label>
-
-<input
-type="text"
-name="destination"
-class="form-control"
-value="<?= htmlspecialchars($trip['destination']); ?>"
-required>
-
-</div>
-
-<div class="mb-3">
-
-<label>Cargo Weight (kg)</label>
-
-<input
-type="number"
-name="cargo_weight"
-class="form-control"
-value="<?= $trip['cargo_weight']; ?>"
-required>
-
-</div>
-
-<div class="mb-3">
-
-<label>Planned Distance (km)</label>
-
-<input
-type="number"
-name="planned_distance"
-class="form-control"
-value="<?= $trip['planned_distance']; ?>"
-required>
-
-</div>
-
-<div class="mb-3">
-
-<label>Status</label>
-
-<select
-name="status"
-class="form-select">
-
-<option
-value="Scheduled"
-<?= ($trip['status']=="Scheduled")?"selected":""; ?>>
-Scheduled
-</option>
-
-<option
-value="On Trip"
-<?= ($trip['status']=="On Trip")?"selected":""; ?>>
-On Trip
-</option>
-
-<option
-value="Completed"
-<?= ($trip['status']=="Completed")?"selected":""; ?>>
-Completed
-</option>
-
-<option
-value="Cancelled"
-<?= ($trip['status']=="Cancelled")?"selected":""; ?>>
-Cancelled
-</option>
-
-</select>
-
-</div>
-
-<button
-type="submit"
-name="update_trip"
-class="btn btn-primary">
-
-Update Trip
-
-</button>
-
-<a
-href="trips.php"
-class="btn btn-secondary">
-
-Cancel
-
-</a>
-
-</form>
-
-</div>
-
-</div>
+    </div>
 
 </div>
 

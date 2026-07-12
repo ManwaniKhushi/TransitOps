@@ -1,4 +1,11 @@
 <?php
+session_start();
+
+if(!isset($_SESSION['user_id']))
+{
+    header("Location: login.php");
+    exit;
+}
 include("../config/db.php");
 include("../includes/header.php");
 include("../includes/navbar.php");
@@ -161,11 +168,10 @@ $result = mysqli_query($conn, $query);
 
                     <td>
 
-                        <a href="edit_driver.php?id=<?= $row['driver_id']; ?>"
-                           class="btn btn-warning btn-sm">
-                            Edit
-                        </a>
-
+                       <a href="edit_driver.php?id=<?= $row['driver_id']; ?>"
+                   class="btn btn-warning btn-sm">
+                    Edit
+                    </a>
                         <a href="../actions/driver_action.php?delete=<?= $row['driver_id']; ?>"
                            class="btn btn-danger btn-sm"
                            onclick="return confirm('Delete this driver?')">
