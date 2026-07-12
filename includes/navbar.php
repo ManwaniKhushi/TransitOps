@@ -41,10 +41,6 @@ $role = $_SESSION['role'] ?? '';
 ?>
 
 
-<!-- =========================
-     COMMON DASHBOARD
-========================= -->
-
 <li class="nav-item">
 
 <a class="nav-link" href="dashboard.php">
@@ -53,11 +49,6 @@ $role = $_SESSION['role'] ?? '';
 
 </li>
 
-
-
-<!-- =========================
-     ADMIN / FLEET MANAGER
-========================= -->
 
 <?php if($role=="Admin" || $role=="Fleet Manager"){ ?>
 
@@ -91,12 +82,6 @@ $role = $_SESSION['role'] ?? '';
 
 <?php } ?>
 
-
-
-<!-- =========================
-     DISPATCHER
-========================= -->
-
 <?php if($role=="Admin" || $role=="Dispatcher"){ ?>
 
 
@@ -111,12 +96,6 @@ $role = $_SESSION['role'] ?? '';
 
 <?php } ?>
 
-
-
-<!-- =========================
-     SAFETY OFFICER
-========================= -->
-
 <?php if($role=="Admin" || $role=="Safety Officer"){ ?>
 
 
@@ -130,12 +109,6 @@ $role = $_SESSION['role'] ?? '';
 
 
 <?php } ?>
-
-
-
-<!-- =========================
-     FINANCIAL ANALYST
-========================= -->
 
 <?php if($role=="Admin" || $role=="Financial Analyst"){ ?>
 
@@ -172,11 +145,6 @@ $role = $_SESSION['role'] ?? '';
 
 </ul>
 
-
-
-
-<!-- USER SECTION -->
-
 <div class="d-flex align-items-center">
 
 
@@ -194,7 +162,7 @@ $role = $_SESSION['role'] ?? '';
 
 
 
-<a href="../actions/logout.php" 
+<a href="../logout.php" 
 class="btn btn-danger btn-sm">
 
 Logout
